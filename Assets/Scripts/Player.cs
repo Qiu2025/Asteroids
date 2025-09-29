@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
@@ -15,6 +16,8 @@ public class Player : MonoBehaviour
     public GameObject gun, bulletPrefab;
     public ParticleSystem ps;
     public GameObject pausePanel;
+    public GameObject gameOverPanel;
+    public BulletPool bulletPool;
 
     private AudioSource sound;
     private Rigidbody rb;
@@ -34,12 +37,8 @@ public class Player : MonoBehaviour
         float rotation = Input.GetAxis("Rotation") * Time.deltaTime;
         rotation *= (-1);
         transform.Rotate(new Vector3(0, 0, rotation * rotationSpeed));
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            ps.Play();
-        }
     }
+
     void Update()
     {
         var newPos = transform.position;
@@ -54,13 +53,19 @@ public class Player : MonoBehaviour
 
         transform.position = newPos;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !isPaused)
         {
-            GameObject bullet = Instantiate(bulletPrefab, gun.transform.position, Quaternion.identity);
-            sound.Play();
+            GameObject bullet = bulletPool.GetBullet();
             Bullet scriptBullet = bullet.GetComponent<Bullet>();
-
+            bullet.transform.position = gun.transform.position;
             scriptBullet.direction = transform.right;
+
+            sound.Play();
+        }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            ps.Play();
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -73,8 +78,10 @@ public class Player : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Asteroid") || other.gameObject.CompareTag("MiniAsteroid"))
         {
-            // Cambiar por menu de fracaso
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SCORE = 0;
+            Time.timeScale = 0f;
+            gameOverPanel.SetActive(true);
+            BulletPool.pool.Clear();
         }
     }
 
@@ -96,5 +103,17 @@ public class Player : MonoBehaviour
     public void OnButton()
     {
         TogglePause();
+    }
+
+    public void OnBack()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    public void OnRetry()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Juego");
     }
 }

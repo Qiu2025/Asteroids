@@ -7,18 +7,18 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     public float speed = 5;
-    public float maxLifeTime = 5;
     public Vector3 direction;
-
     public GameObject miniAsteroidPrefab;
-
-    void Start()
-    {
-        Destroy(gameObject, maxLifeTime);
-    }
 
     void Update()
     {
+        var pos = transform.position;
+        if (pos.x > Player.xBorderLimit || pos.x < -Player.xBorderLimit ||
+            pos.y > Player.yBorderLimit || pos.y < -Player.yBorderLimit)
+        {
+            BulletPool.ReturnBullet(gameObject);                
+        }
+            
         transform.Translate(speed * Time.deltaTime * direction);
     }
 
@@ -27,8 +27,8 @@ public class Bullet : MonoBehaviour
         if (collision.gameObject.CompareTag("Asteroid"))
         {
             IncreaseScore();
-
             Destroy(collision.gameObject);
+            BulletPool.ReturnBullet(gameObject);
 
             Vector3 baseDir = direction.normalized;
             Vector3 leftDir = new Vector3(-baseDir.y, baseDir.x, 0);
@@ -39,14 +39,12 @@ public class Bullet : MonoBehaviour
 
             GameObject miniAsteroid2 = Instantiate(miniAsteroidPrefab, collision.transform.position, Quaternion.identity);
             miniAsteroid2.GetComponent<MiniAsteroid>().direction = rightDir;
-
-            Destroy(gameObject);
         }
         else if (collision.gameObject.CompareTag("MiniAsteroid"))
         {
             IncreaseScore();
             Destroy(collision.gameObject);
-            Destroy(gameObject);
+            BulletPool.ReturnBullet(gameObject);
         }
     }
 
