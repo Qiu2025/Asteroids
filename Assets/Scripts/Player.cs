@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     public static float xBorderLimit = 9;
     public static float yBorderLimit = 6;
     private bool isPaused = false;
+    private bool isDead = false;
 
     public GameObject gun, bulletPrefab;
     public ParticleSystem ps;
@@ -53,7 +54,7 @@ public class Player : MonoBehaviour
 
         transform.position = newPos;
 
-        if (Input.GetKeyDown(KeyCode.Space) && !isPaused)
+        if (Input.GetKeyDown(KeyCode.Space) && !isPaused && !isDead)
         {
             GameObject bullet = bulletPool.GetBullet();
             Bullet scriptBullet = bullet.GetComponent<Bullet>();
@@ -68,7 +69,7 @@ public class Player : MonoBehaviour
             ps.Play();
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !isDead)
         {
             TogglePause();
         }
@@ -82,6 +83,7 @@ public class Player : MonoBehaviour
             Time.timeScale = 0f;
             gameOverPanel.SetActive(true);
             BulletPool.pool.Clear();
+            isDead = true;
         }
     }
 
