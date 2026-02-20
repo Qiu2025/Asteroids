@@ -1,5 +1,5 @@
 # Asteroids
-Microgame developed to consolidate the basic aspects of video game development with Unity in the FdV course at UPM.
+Microgame developed to consolidate the basic aspects of video game development with Unity in the **FdV** course at **UPM**.
 
 The player controls a spaceship that can rotate, thrust and shoot to destroy incoming asteroids.
 
